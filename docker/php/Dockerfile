@@ -11,11 +11,8 @@ zlib1g-dev
 RUN docker-php-ext-install zip
 RUN docker-php-ext-enable apcu
 
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
-    && php -r "if (hash_file('SHA384', 'composer-setup.php') === '%SHA_384%') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
-    && php composer-setup.php --filename=composer \
-    && php -r "unlink('composer-setup.php');" \
-    && mv composer /usr/local/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer && \
+    composer global require hirak/prestissimo --no-plugins --no-scripts
 
 WORKDIR /usr/src/app
 
