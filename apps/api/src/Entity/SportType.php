@@ -38,10 +38,16 @@ class SportType
      */
     private $sportTeams;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\GameBuffer", mappedBy="sport", orphanRemoval=true)
+     */
+    private $gameBuffers;
+
     public function __construct()
     {
         $this->games = new ArrayCollection();
         $this->sportTeams = new ArrayCollection();
+        $this->gameBuffers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -129,6 +135,37 @@ class SportType
             // set the owning side to null (unless already changed)
             if ($sportTeam->getSport() === $this) {
                 $sportTeam->setSport(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|GameBuffer[]
+     */
+    public function getGameBuffers(): Collection
+    {
+        return $this->gameBuffers;
+    }
+
+    public function addGameBuffer(GameBuffer $gameBuffer): self
+    {
+        if (!$this->gameBuffers->contains($gameBuffer)) {
+            $this->gameBuffers[] = $gameBuffer;
+            $gameBuffer->setSport($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameBuffer(GameBuffer $gameBuffer): self
+    {
+        if ($this->gameBuffers->contains($gameBuffer)) {
+            $this->gameBuffers->removeElement($gameBuffer);
+            // set the owning side to null (unless already changed)
+            if ($gameBuffer->getSport() === $this) {
+                $gameBuffer->setSport(null);
             }
         }
 

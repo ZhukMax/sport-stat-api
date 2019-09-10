@@ -28,9 +28,15 @@ class Source
      */
     private $games;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\GameBuffer", mappedBy="source", orphanRemoval=true)
+     */
+    private $gameBuffers;
+
     public function __construct()
     {
         $this->games = new ArrayCollection();
+        $this->gameBuffers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -75,6 +81,37 @@ class Source
             // set the owning side to null (unless already changed)
             if ($game->getSource() === $this) {
                 $game->setSource(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|GameBuffer[]
+     */
+    public function getGameBuffers(): Collection
+    {
+        return $this->gameBuffers;
+    }
+
+    public function addGameBuffer(GameBuffer $gameBuffer): self
+    {
+        if (!$this->gameBuffers->contains($gameBuffer)) {
+            $this->gameBuffers[] = $gameBuffer;
+            $gameBuffer->setSource($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameBuffer(GameBuffer $gameBuffer): self
+    {
+        if ($this->gameBuffers->contains($gameBuffer)) {
+            $this->gameBuffers->removeElement($gameBuffer);
+            // set the owning side to null (unless already changed)
+            if ($gameBuffer->getSource() === $this) {
+                $gameBuffer->setSource(null);
             }
         }
 

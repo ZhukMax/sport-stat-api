@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SportTeamRepository")
@@ -20,17 +21,20 @@ class SportTeam
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotNull
      */
     private $title;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\SportType", inversedBy="sportTeams")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull
      */
     private $sport;
 
     /**
      * @ORM\Column(type="json", nullable=true)
+     * @Assert\Json(message = "Invalid Json.")
      */
     private $synonyms = [];
 
@@ -39,9 +43,15 @@ class SportTeam
      */
     private $games;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\GameBuffer", mappedBy="teamOne")
+     */
+    private $gameBuffers;
+
     public function __construct()
     {
         $this->games = new ArrayCollection();
+        $this->gameBuffers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -110,6 +120,37 @@ class SportTeam
             // set the owning side to null (unless already changed)
             if ($game->getTeamOne() === $this) {
                 $game->setTeamOne(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|GameBuffer[]
+     */
+    public function getGameBuffers(): Collection
+    {
+        return $this->gameBuffers;
+    }
+
+    public function addGameBuffer(GameBuffer $gameBuffer): self
+    {
+        if (!$this->gameBuffers->contains($gameBuffer)) {
+            $this->gameBuffers[] = $gameBuffer;
+            $gameBuffer->setTeamOne($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameBuffer(GameBuffer $gameBuffer): self
+    {
+        if ($this->gameBuffers->contains($gameBuffer)) {
+            $this->gameBuffers->removeElement($gameBuffer);
+            // set the owning side to null (unless already changed)
+            if ($gameBuffer->getTeamOne() === $this) {
+                $gameBuffer->setTeamOne(null);
             }
         }
 

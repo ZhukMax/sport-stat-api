@@ -2,15 +2,12 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\GameRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\GameBufferRepository")
  */
-class Game
+class GameBuffer
 {
     /**
      * @ORM\Id()
@@ -25,55 +22,44 @@ class Game
     private $startAt;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Source", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Source", inversedBy="gameBuffers")
      * @ORM\JoinColumn(nullable=false)
      */
     private $source;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\League", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="App\Entity\League", inversedBy="gameBuffers")
      * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotNull
      */
     private $league;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\SportType", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="App\Entity\SportType", inversedBy="gameBuffers")
      * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotNull
      */
     private $sport;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\SportTeam", inversedBy="games")
-     * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotNull
+     * @ORM\ManyToOne(targetEntity="App\Entity\SportTeam", inversedBy="gameBuffers")
      */
     private $teamOne;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\SportTeam")
+     * @ORM\ManyToOne(targetEntity="App\Entity\SportTeam", inversedBy="gameBuffers")
      * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotNull
      */
     private $teamTwo;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Language", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Language", inversedBy="gameBuffers")
      * @ORM\JoinColumn(nullable=false)
-     * @Assert\Language
      */
     private $language;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\GameBuffer", mappedBy="baseGame")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Game", inversedBy="gameBuffers")
      */
-    private $gameBuffers;
-
-    public function __construct()
-    {
-        $this->gameBuffers = new ArrayCollection();
-    }
+    private $baseGame;
 
     public function getId(): ?int
     {
@@ -164,33 +150,14 @@ class Game
         return $this;
     }
 
-    /**
-     * @return Collection|GameBuffer[]
-     */
-    public function getGameBuffers(): Collection
+    public function getBaseGame(): ?Game
     {
-        return $this->gameBuffers;
+        return $this->baseGame;
     }
 
-    public function addGameBuffer(GameBuffer $gameBuffer): self
+    public function setBaseGame(?Game $baseGame): self
     {
-        if (!$this->gameBuffers->contains($gameBuffer)) {
-            $this->gameBuffers[] = $gameBuffer;
-            $gameBuffer->setBaseGame($this);
-        }
-
-        return $this;
-    }
-
-    public function removeGameBuffer(GameBuffer $gameBuffer): self
-    {
-        if ($this->gameBuffers->contains($gameBuffer)) {
-            $this->gameBuffers->removeElement($gameBuffer);
-            // set the owning side to null (unless already changed)
-            if ($gameBuffer->getBaseGame() === $this) {
-                $gameBuffer->setBaseGame(null);
-            }
-        }
+        $this->baseGame = $baseGame;
 
         return $this;
     }

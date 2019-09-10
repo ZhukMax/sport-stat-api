@@ -33,9 +33,15 @@ class Language
      */
     private $games;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\GameBuffer", mappedBy="language", orphanRemoval=true)
+     */
+    private $gameBuffers;
+
     public function __construct()
     {
         $this->games = new ArrayCollection();
+        $this->gameBuffers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -92,6 +98,37 @@ class Language
             // set the owning side to null (unless already changed)
             if ($game->getLanguage() === $this) {
                 $game->setLanguage(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|GameBuffer[]
+     */
+    public function getGameBuffers(): Collection
+    {
+        return $this->gameBuffers;
+    }
+
+    public function addGameBuffer(GameBuffer $gameBuffer): self
+    {
+        if (!$this->gameBuffers->contains($gameBuffer)) {
+            $this->gameBuffers[] = $gameBuffer;
+            $gameBuffer->setLanguage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameBuffer(GameBuffer $gameBuffer): self
+    {
+        if ($this->gameBuffers->contains($gameBuffer)) {
+            $this->gameBuffers->removeElement($gameBuffer);
+            // set the owning side to null (unless already changed)
+            if ($gameBuffer->getLanguage() === $this) {
+                $gameBuffer->setLanguage(null);
             }
         }
 
